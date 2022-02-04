@@ -432,24 +432,29 @@ local function show_menu()
     end
 
     local choiceTable = {}
+    local nl = "\n"
     for i,v in ipairs(upnext) do
-        choiceTable[i] = choose_prefix(i)..v.label.."\n"
+	if next(upnext,i) == nil then
+		nl=""
+  	end
+        choiceTable[i] = choose_prefix(i)..v.label..nl
     end
     local choices = table.concat(choiceTable)
 
     local cmd = ('echo "$choices" | dmenu-dwm -l 12'):gsub('$choices', choices)
     local choice = os_capture(cmd)
 
-    if(choice == nil or choice == '') then
-	return
-    end
 
-    local selected
+    local selected = -1
     for k,v in pairs(choiceTable) do
         if v == choice then
             selected = k
 	    break
         end
+    end
+
+    if(selected == -1) then
+	return
     end
 
     --mp.osd_message(choice, 60)
