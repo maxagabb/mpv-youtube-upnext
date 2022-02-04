@@ -423,53 +423,38 @@ local function show_menu()
             return opts.cursor_unselected
         end
     end
-    local function draw_menu()
-        local ass = assdraw.ass_new()
 
-        ass:pos(opts.text_padding_x, opts.text_padding_y)
-        ass:append(opts.style_ass_tags)
+    local function os_capture(cmd)
+	local f = io.popen(cmd)
+	local result = f:read('*a')
+	f:close()
+	return result
+    end
 
-        for i,v in ipairs(upnext) do
-            ass:append(choose_prefix(i)..v.label.."\\N")
+    local choiceTable = {}
+    for i,v in ipairs(upnext) do
+        choiceTable[i] = choose_prefix(i)..v.label.."\n"
+    end
+    local choices = table.concat(choiceTable)
+
+    local cmd = ('echo "$choices" | dmenu-dwm -l 12'):gsub('$choices', choices)
+    local choice = os_capture(cmd)
+
+    if(choice == nil or choice == '') then
+	return
+    end
+
+    local selected
+    for k,v in pairs(choiceTable) do
+        if v == choice then
+            selected = k
+	    break
         end
-
-      local w, h = mp.get_osd_size()
-      if opts.scale_playlist_by_window then w,h = 0, 0 end
-      mp.set_osd_ass(w, h, ass.text)
-    end
-    local function selected_move(amt)
-        selected = selected + amt
-        if selected < 1 then
-            selected = num_upnext
-        elseif selected > num_upnext then
-            selected = 1
-        end
-        timeout:kill()
-        timeout:resume()
-        draw_menu()
     end
 
-    local function destroy()
-        timeout:kill()
-        mp.set_osd_ass(0,0,"")
-        mp.remove_key_binding("move_up")
-        mp.remove_key_binding("move_down")
-        mp.remove_key_binding("select")
-        mp.remove_key_binding("escape")
-        destroyer = nil
-    end
-    timeout = mp.add_periodic_timer(opts.menu_timeout, destroy)
-    destroyer = destroy
-
-    mp.add_forced_key_binding(opts.up_binding,     "move_up",   function() selected_move(-1) end, {repeatable=true})
-    mp.add_forced_key_binding(opts.down_binding,   "move_down", function() selected_move(1)  end, {repeatable=true})
-    mp.add_forced_key_binding(opts.select_binding, "select",    function()
-        destroy()
-        mp.commandv("loadfile", upnext[selected].file, "replace")
-    end)
-    mp.add_forced_key_binding(opts.toggle_menu_binding, "escape", destroy)
-
-    draw_menu()
+    --mp.osd_message(choice, 60)
+    mp.commandv("loadfile", upnext[selected].file, "replace")
+    
     return
 end
 
