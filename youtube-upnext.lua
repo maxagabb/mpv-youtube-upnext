@@ -21,12 +21,9 @@ local assdraw = require 'mp.assdraw'
 local opts = {
     --key bindings
     toggle_menu_binding = "ctrl+u",
-    up_binding = "UP",
-    down_binding = "DOWN",
-    select_binding = "ENTER",
 
     --auto load and add the "upnext" video to the playlist
-    auto_add = true,
+    auto_add = "",
 
     --formatting / cursors
     cursor_selected   = "● ",
@@ -80,6 +77,10 @@ if opts.cookies == nil or opts.cookies == "" then
             opts.cookies = arg
         end
     end
+end
+
+if opts.auto_add == "" then
+	opts.auto_add = false
 end
 
 local destroyer = nil
@@ -457,9 +458,13 @@ local function show_menu()
 	return
     end
 
-    --mp.osd_message(choice, 60)
-    mp.commandv("loadfile", upnext[selected].file, "replace")
-    
+    if opts.auto_add then
+	mp.commandv("loadfile", upnext[selected].file, "replace")
+    else
+	local cmd = ('mpv --ytdl-raw-options-append=cookies-from-browser=firefox --script-opts=youtube-upnext-auto_add=true --loop-file=no $file'):gsub('$file', upnext[selected].file)
+	io.popen(cmd)
+    end
+
     return
 end
 
