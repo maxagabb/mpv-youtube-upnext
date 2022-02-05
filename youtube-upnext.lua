@@ -97,8 +97,16 @@ local function table_size(t)
     return s
 end
 
-local function exec(args)
-    local ret = utils.subprocess({args = args})
+local function exec(args, stdin)
+    local command = {
+        name = "subprocess",
+        playback_only = false,
+        capture_stdout = true,
+        detach = true,
+        args = args,
+    }
+    if stdin then command.stdin_data = stdin end
+    local ret = mp.command_native(command)
     return ret.status, ret.stdout, ret
 end
 
@@ -127,7 +135,7 @@ local function download_upnext(url, post_data)
     end
     table.insert(command, url)
 
-    local es, s, _ = exec(command)
+    local es, s, _ = exec(command, nil)
 
     if (es ~= 0) or (s == nil) or (s == "") then
         if es == 5 then
@@ -203,7 +211,7 @@ local function get_invidious(url)
     end
     table.insert(command, url)
 
-    local es, s, _ = exec(command)
+    local es, s, _ = exec(command, nil)
 
     if (es ~= 0) or (s == nil) or (s == "") then
         if es == 5 then
@@ -425,13 +433,6 @@ local function show_menu()
         end
     end
 
-    local function os_capture(cmd)
-	local f = io.popen(cmd)
-	local result = f:read('*a')
-	f:close()
-	return result
-    end
-
     local choiceTable = {}
     local nl = "\n"
     for i,v in ipairs(upnext) do
@@ -441,10 +442,12 @@ local function show_menu()
         choiceTable[i] = choose_prefix(i)..v.label..nl
     end
     local choices = table.concat(choiceTable)
-
-    local cmd = ('echo "$choices" | dmenu-dwm -l 12'):gsub('$choices', choices)
-    local choice = os_capture(cmd)
-
+    local command = {
+	    "dmenu-dwm",
+	    "-l",
+	    "12", 
+    }
+    local es, choice, _ = exec(command, choices)
 
     local selected = -1
     for k,v in pairs(choiceTable) do
@@ -461,8 +464,14 @@ local function show_menu()
     if opts.auto_add then
 	mp.commandv("loadfile", upnext[selected].file, "replace")
     else
-	local cmd = ('mpv --ytdl-raw-options-append=cookies-from-browser=firefox --script-opts=youtube-upnext-auto_add=true --loop-file=no $file'):gsub('$file', upnext[selected].file)
-	io.popen(cmd)
+	local command = { 
+		"mpv",
+		"--ytdl-raw-options-append=cookies-from-browser=firefox", 
+		"--script-opts=youtube-upnext-auto_add=true", 
+		"--loop-file=no", 
+		upnext[selected].file
+	} 
+	exec(command)
     end
 
     return
