@@ -25,10 +25,6 @@ local opts = {
     --auto load and add the "upnext" video to the playlist
     auto_add = "",
 
-    --formatting / cursors
-    cursor_selected   = "● ",
-    cursor_unselected = "○ ",
-
     --font size scales by window, if false requires larger font and padding sizes
     scale_playlist_by_window=false,
 
@@ -46,7 +42,6 @@ local opts = {
     text_padding_y = 5,
 
     --other
-    menu_timeout = 10,
     youtube_url = "https://www.youtube.com/watch?v=%s",
 
     -- Fallback Invidious instance, see https://instances.invidio.us/ for alternatives e.g. https://invidious.snopyta.org
@@ -422,23 +417,13 @@ local function show_menu()
     end
     mp.osd_message("", 1)
 
-    local timeout
-    local selected = 1
-    local function choose_prefix(i)
-        if i == selected then
-            return opts.cursor_selected
-        else
-            return opts.cursor_unselected
-        end
-    end
-
     local choiceTable = {}
     local nl = "\n"
     for i,v in ipairs(upnext) do
 	if next(upnext,i) == nil then
 		nl=""
   	end
-        choiceTable[i] = choose_prefix(i)..v.label..nl
+        choiceTable[i] = v.label..nl
     end
     local choices = table.concat(choiceTable)
     local command = {
