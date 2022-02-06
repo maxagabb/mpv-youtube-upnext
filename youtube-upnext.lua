@@ -16,7 +16,6 @@
 local mp = require 'mp'
 local utils = require 'mp.utils'
 local msg = require 'mp.msg'
-local assdraw = require 'mp.assdraw'
 
 local opts = {
     --key bindings
@@ -24,22 +23,6 @@ local opts = {
 
     --auto load and add the "upnext" video to the playlist
     auto_add = "",
-
-    --font size scales by window, if false requires larger font and padding sizes
-    scale_playlist_by_window=false,
-
-    --playlist ass style overrides inside curly brackets, \keyvalue is one field, extra \ for escape in lua
-    --example {\\fnUbuntu\\fs10\\b0\\bord1} equals: font=Ubuntu, size=10, bold=no, border=1
-    --read http://docs.aegisub.org/3.2/ASS_Tags/ for reference of tags
-    --undeclared tags will use default osd settings
-    --these styles will be used for the whole playlist. More specific styling will need to be hacked in
-    --
-    --(a monospaced font is recommended but not required)
-    style_ass_tags = "{\\fnmonospace}",
-
-    --paddings for top left corner
-    text_padding_x = 5,
-    text_padding_y = 5,
 
     --other
     youtube_url = "https://www.youtube.com/watch?v=%s",
@@ -75,7 +58,6 @@ if opts.auto_add == "" then
 	opts.auto_add = false
 end
 
-local destroyer = nil
 local upnext_cache={}
 local prefered_win_width = nil
 local last_dheight = nil
@@ -464,11 +446,7 @@ end
 -- register script message to show menu
 mp.register_script_message("toggle-upnext-menu",
 function()
-    if destroyer ~= nil then
-        destroyer()
-    else
-        show_menu()
-    end
+	show_menu()
 end)
 
 -- keybind to launch menu
