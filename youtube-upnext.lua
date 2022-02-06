@@ -102,7 +102,7 @@ local function exec(args, stdin)
         name = "subprocess",
         playback_only = false,
         capture_stdout = true,
-        detach = true,
+        detach = false,
         args = args,
     }
     if stdin then command.stdin_data = stdin end
@@ -464,14 +464,12 @@ local function show_menu()
     if opts.auto_add then
 	mp.commandv("loadfile", upnext[selected].file, "replace")
     else
-	local command = { 
-		"mpv",
-		"--ytdl-raw-options-append=cookies-from-browser=firefox", 
-		"--script-opts=youtube-upnext-auto_add=true", 
-		"--loop-file=no", 
-		upnext[selected].file
-	} 
-	exec(command)
+	mp.commandv("run",
+		    "mpv",
+		    "--ytdl-raw-options-append=cookies-from-browser=firefox", 
+		    "--script-opts=youtube-upnext-auto_add=true", 
+		    "--loop-file=no",
+		    upnext[selected].file)
     end
 
     return
