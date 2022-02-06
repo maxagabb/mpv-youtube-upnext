@@ -412,7 +412,7 @@ local function on_file_loaded(_)
 end
 
 local function show_menu()
-    mp.osd_message("fetching 'up next' with wget...", 60)
+    mp.commandv("run", "notify-send", "  fetching 'up next' with wget...  ")
 
     local upnext, num_upnext = load_upnext()
     if num_upnext == 0 then
