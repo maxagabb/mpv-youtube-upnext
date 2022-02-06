@@ -114,7 +114,10 @@ local function url_encode(s)
    return string.gsub(s, "([^0-9a-zA-Z!'()*._~-])", repl)
  end
 
-local function download_upnext(url, post_data)
+local function download_upnext(url, post_data, notify)
+    if notify then 
+	mp.commandv("run", "notify-send", "  fetching related videos  ")
+    end
     local command = {"wget", "-q", "-O", "-"}
     if not opts.check_certificate then
         table.insert(command, "--no-check-certificate")
@@ -173,7 +176,7 @@ local function download_upnext(url, post_data)
             msg.warn("Created a cookies jar file at \"" .. tostring(opts.cookies) ..
                 "\". To hide this warning, set a cookies file in the script configuration")
         end
-        return download_upnext("https://consent.youtube.com/s", post_str)
+        return download_upnext("https://consent.youtube.com/s", post_str, false)
     end
 
     local pos1 = string.find(s, "ytInitialData =", 1, true)
@@ -370,7 +373,7 @@ local function parse_upnext(json_str, current_video_url)
 end
 
 
-local function load_upnext()
+local function load_upnext(notify)
     local url = mp.get_property("path")
 
     url = string.gsub(url, "ytdl://", "") -- Strip possible ytdl:// prefix.
@@ -389,7 +392,7 @@ local function load_upnext()
         return res, table_size(res)
     end
 
-    local res, n = parse_upnext(download_upnext(url, nil), url)
+    local res, n = parse_upnext(download_upnext(url, nil, notify), url)
 
     -- Fallback to Invidious API
     if n == 0 and opts.invidious_instance and opts.invidious_instance ~= "" then
@@ -404,7 +407,7 @@ local function on_file_loaded(_)
     local url = mp.get_property("path")
     url = string.gsub(url, "ytdl://", "") -- Strip possible ytdl:// prefix.
     if string.find(url, "youtu") ~= nil then
-        local upnext, num_upnext = load_upnext()
+        local upnext, num_upnext = load_upnext(false)
         if num_upnext > 0 then
             mp.commandv("loadfile", upnext[1].file, "append")
         end
@@ -412,9 +415,8 @@ local function on_file_loaded(_)
 end
 
 local function show_menu()
-    mp.commandv("run", "notify-send", "  fetching 'up next' with wget...  ")
 
-    local upnext, num_upnext = load_upnext()
+    local upnext, num_upnext = load_upnext(true)
     if num_upnext == 0 then
         return
     end
@@ -442,7 +444,9 @@ local function show_menu()
     local command = {
 	    "dmenu-dwm",
 	    "-l",
-	    "12", 
+	    "12",
+	    "-p",
+	    "___   Select related video: "
     }
     local es, choice, _ = exec(command, choices)
 
