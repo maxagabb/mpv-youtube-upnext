@@ -400,12 +400,8 @@ local function show_menu()
     mp.osd_message("", 1)
 
     local choiceTable = {}
-    local nl = "\n"
     for i,v in ipairs(upnext) do
-	if next(upnext,i) == nil then
-		nl=""
-  	end
-        choiceTable[i] = v.label..nl
+        choiceTable[i] = v.label.."\n"
     end
     local choices = table.concat(choiceTable)
     local command = {
