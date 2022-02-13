@@ -46,7 +46,7 @@ local function show_menu()
 	    "___   Search in playlist: "
     }
     local choice = exec(command, choices)
-    mp.osd_message(choice)
+    mp.osd_message(choice:sub(4))
 
     local selected = -3
     for k,v in pairs(choiceTable) do
