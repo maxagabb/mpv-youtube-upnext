@@ -21,7 +21,11 @@ local function show_menu()
     local playlist = mp.get_property_native('playlist')
     local choiceTable = {}
     for i = 1, #playlist do
-        choiceTable[i] = playlist[i].title.."\n"
+	local title = playlist[i].title
+	if(title == nil) then
+		title = playlist[i].filename:match("^.+/(.+)$")
+	end
+        choiceTable[i] = title.."\n"
     end
     local choices = table.concat(choiceTable)
     local command = {
