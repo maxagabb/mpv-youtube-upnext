@@ -431,7 +431,7 @@ local function show_menu()
 	mp.commandv("run",
 		    "mpv",
 		    "--ytdl-raw-options-append=cookies-from-browser=firefox", 
-		    "--script-opts=youtube-upnext-auto_add=true", 
+		    "--script-opts=youtube-upnext-auto_add=true,dmenu-playlist-music_osc=true",
 		    "--loop-file=no",
 		    upnext[selected].file)
     end
