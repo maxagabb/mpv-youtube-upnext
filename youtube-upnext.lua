@@ -405,7 +405,7 @@ local function show_menu()
     end
     local choices = table.concat(choiceTable)
     local command = {
-	    "dmenu-dwm",
+	    "dmenu-session",
 	    "-l",
 	    "12",
 	    "-p",
