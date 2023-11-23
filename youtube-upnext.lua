@@ -428,9 +428,14 @@ local function show_menu()
     if opts.auto_add then
 	mp.commandv("loadfile", upnext[selected].file, "replace")
     else
+    local mpris = ""
+    if (os.getenv("XDG_CURRENT_DESKTOP") == "GNOME") then
+      mpris = "--script=/home/mxy/.local/share/git-repos/mpv-mpris/mpris.so"
+    end
 	mp.commandv("run",
 		    "mpv",
 		    "--ytdl-raw-options-append=cookies-from-browser=firefox", 
+      		    mpris,
 		    "--script-opts=youtube-upnext-auto_add=true,dmenu-playlist-music_osc=true",
 		    "--loop-file=no",
 		    upnext[selected].file)
