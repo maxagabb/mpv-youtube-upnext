@@ -92,7 +92,7 @@ local function url_encode(s)
  end
 
 local function download_upnext(url, post_data, notify)
-    if notify then 
+    if notify then
 	mp.commandv("run", "notify-send", "  fetching related videos  ")
     end
     local command = {"wget", "-q", "-O", "-"}
@@ -429,19 +429,17 @@ local function show_menu()
 	mp.commandv("loadfile", upnext[selected].file, "replace")
     else
     local mpris = ""
-    if (os.getenv("XDG_CURRENT_DESKTOP") == "GNOME") then
+    -- if (os.getenv("XDG_CURRENT_DESKTOP") == "GNOME") then
       mpris = "--script=/home/mxy/.local/share/git-repos/mpv-mpris/mpris.so"
-    end
+    -- end
 	mp.commandv("run",
-		    "mpv",
-		    "--ytdl-raw-options-append=cookies-from-browser=firefox", 
-      		    mpris,
-		    "--script-opts=youtube-upnext-auto_add=true,dmenu-playlist-music_osc=true",
-		    "--loop-file=no",
+		    "launch_good",
+		    "mpv --ytdl-raw-options-append=cookies-from-browser=firefox " ..
+		    mpris ..
+		    " --script-opts=youtube-upnext-auto_add=true,dmenu-playlist-music_osc=true " ..
+		    "--loop-file=no " ..
 		    upnext[selected].file)
     end
-
-    return
 end
 
 -- register script message to show menu
