@@ -438,6 +438,7 @@ local function show_menu()
 		    mpris ..
 		    " --script-opts=youtube-upnext-auto_add=true,dmenu-playlist-music_osc=true " ..
 		    "--loop-file=no " ..
+		    "--wayland-app-id=\"music\" " ..
 		    upnext[selected].file)
     end
 end
